@@ -1,63 +1,75 @@
-FROM archlinux:base-devel-20230212.0.126025
+FROM ubuntu:20.04
 
-COPY mirrorlist /etc/pacman.d/mirrorlist
-COPY makepkg.conf /etc/makepkg.conf
-RUN pacman -Sy --noconfirm
+# Configure locale and mirrors
+ENV DEBIAN_FRONTEND=noninteractive
+RUN ln -fs /usr/share/zoneinfo/Asia/Taipei /etc/localtime
+COPY sources.list /etc/apt/sources.list
+RUN apt update -y
+RUN apt upgrade -y
+RUN apt install -y git dialog sudo tzdata keyboard-configuration
+RUN dpkg-reconfigure --frontend noninteractive tzdata
 
+# Create a /setup dir
 RUN mkdir /setup && chown nobody /setup
-RUN mkdir /.cache && chown nobody /.cache
 
-# Install yay
-RUN pacman -S --noconfirm git go
-RUN sudo -u nobody mkdir /setup/yay
-COPY yay/PKGBUILD /setup/yay/PKGBUILD
-RUN cd /setup/yay && \
-    sudo -u nobody makepkg -Ccf
-RUN pacman -U --noconfirm /setup/yay/yay-11.3.2-1-x86_64.pkg.tar
+# # Install iceoryx
+RUN apt install -y wget
+RUN apt install -y build-essential
+RUN apt install -y cmake
+RUN apt install -y ninja-build
+RUN apt install -y libacl1-dev
+RUN apt install -y libncurses-dev
 
-# Install iceoryx
-RUN pacman -S --noconfirm ninja cmake
-RUN sudo -u nobody mkdir /setup/iceoryx
-COPY iceoryx/PKGBUILD /setup/iceoryx/PKGBUILD
-RUN cd /setup/iceoryx && \
-    sudo -u nobody makepkg -Ccf
-RUN ls /setup/iceoryx
-RUN pacman -U --noconfirm /setup/iceoryx/iceoryx-2.0.3-1-x86_64.pkg.tar
+COPY --chown=nobody:nobody iceoryx /setup/iceoryx
+WORKDIR /setup/iceoryx
+
+USER nobody
+RUN ./prepare.sh
+RUN ./build.sh
+
+USER root
+RUN ./install.sh
 
 # Install cyclonedds
-RUN pacman -S --noconfirm jdk-openjdk maven
-RUN sudo -u nobody mkdir /setup/cyclonedds
-COPY cyclonedds/PKGBUILD /setup/cyclonedds/PKGBUILD
-RUN cd /setup/cyclonedds && \
-    sudo -u nobody makepkg -Ccf
-RUN ls /setup/cyclonedds
-RUN pacman -U --noconfirm /setup/cyclonedds/cyclonedds-0.10.2-1-x86_64.pkg.tar
+COPY --chown=nobody:nobody cyclonedds /setup/cyclonedds
+WORKDIR /setup/cyclonedds
 
-# Install Kafka
-RUN pacman -S --noconfirm kafka
-RUN pacman -S --noconfirm librdkafka
+USER nobody
+RUN ./prepare.sh
+RUN ./build.sh
 
-# Install MQTT
-RUN pacman -S --noconfirm mosquitto
-RUN sudo -u nobody mkdir /setup/paho-mqtt-c
-COPY paho-mqtt-c/PKGBUILD /setup/paho-mqtt-c/PKGBUILD
-RUN cd /setup/paho-mqtt-c && \
-    sudo -u nobody makepkg -Ccf
-RUN ls /setup/paho-mqtt-c
-RUN pacman -U --noconfirm /setup/paho-mqtt-c/paho-mqtt-c-1.3.10-1-x86_64.pkg.tar
+USER root
+RUN ./install.sh
 
-# Install Rust toolchain
-RUN pacman -S --noconfirm rustup
-RUN rustup update
-RUN rustup default stable
+
+# Install paho-mqtt-c
+RUN apt install -y libssl-dev
+
+COPY --chown=nobody:nobody paho-mqtt-c /setup/paho-mqtt-c
+WORKDIR /setup/paho-mqtt-c
+
+USER nobody
+RUN ./prepare.sh
+RUN ./build.sh
+
+USER root
+RUN ./install.sh
+
+# # Install Rust toolchain
+WORKDIR /root
+
+RUN apt install -y curl
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
+    bash -s -- --default-toolchain stable -y
+RUN echo 'source $HOME/.cargo/env' >> /root/.bashrc
 
 # Dev tools
-RUN pacman -S --noconfirm man-pages
-RUN pacman -S --noconfirm nano
-RUN pacman -S --noconfirm vim
-RUN pacman -S --noconfirm screen
-RUN pacman -S --noconfirm tmux
-RUN pacman -S --noconfirm emacs-nox
+# RUN apt install -y man-pages
+RUN apt install -y nano
+RUN apt install -y vim
+RUN apt install -y screen
+RUN apt install -y tmux
+RUN apt install -y emacs-nox
 
 # Clean up
 RUN rm -r /setup
