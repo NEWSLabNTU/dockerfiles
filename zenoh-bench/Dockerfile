@@ -1,9 +1,10 @@
-FROM ubuntu:20.04
+FROM --platform=$BUILDPLATFORM ubuntu:20.04
+ARG TARGETARCH
 
 # Configure locale and mirrors
 ENV DEBIAN_FRONTEND=noninteractive
 RUN ln -fs /usr/share/zoneinfo/Asia/Taipei /etc/localtime
-COPY sources.list /etc/apt/sources.list
+COPY sources.list.$TARGETARCH /etc/apt/sources.list
 RUN apt update -y
 RUN apt upgrade -y
 RUN apt install -y git dialog sudo tzdata keyboard-configuration
