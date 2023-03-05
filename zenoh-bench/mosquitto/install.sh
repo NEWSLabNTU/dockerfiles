@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 set -e
-cmake --install build
+make install -C mosquitto-1.6.9
