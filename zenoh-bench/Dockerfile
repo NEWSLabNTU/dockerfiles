@@ -57,7 +57,7 @@ USER root
 RUN ./install.sh
 
 # Install mosquitto
-RUN apt install -y uthash-dev xsltproc docbook-xsl
+RUN apt install -y uthash-dev xsltproc docbook-xsl libcjson-dev
 
 COPY --chown=nobody:nobody mosquitto /setup/mosquitto
 WORKDIR /setup/mosquitto
