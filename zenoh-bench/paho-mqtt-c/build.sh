@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-cmake -B build -S paho.mqtt.c-1.3.10 \
+cmake -B build -S paho.mqtt.c-1.3.11 \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=/usr \
       -DPAHO_WITH_SSL=TRUE \

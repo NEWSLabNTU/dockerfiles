@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 set -e
-make install -C mosquitto-1.6.9
+make install -C mosquitto-2.0.15
