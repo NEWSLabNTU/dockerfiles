@@ -13,7 +13,7 @@ RUN dpkg-reconfigure --frontend noninteractive tzdata
 # Create a /setup dir
 RUN mkdir /setup && chown nobody /setup
 
-# # Install iceoryx
+# Install iceoryx
 RUN apt install -y wget
 RUN apt install -y build-essential
 RUN apt install -y cmake
@@ -56,7 +56,20 @@ RUN ./build.sh
 USER root
 RUN ./install.sh
 
-# # Install Rust toolchain
+# Install mosquitto
+RUN apt install -y uthash-dev
+
+COPY --chown=nobody:nobody mosquitto /setup/mosquitto
+WORKDIR /setup/mosquitto
+
+USER nobody
+RUN ./prepare.sh
+RUN ./build.sh
+
+USER root
+RUN ./install.sh
+
+# Install Rust toolchain
 WORKDIR /root
 
 RUN apt install -y curl
