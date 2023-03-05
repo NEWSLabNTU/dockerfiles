@@ -17,9 +17,9 @@ endif
 
 push-image:
 ifeq ($(arch), x86_64)
-	docker push $(target)
+	docker push $(target):amd64
 else ifeq ($(arch), aarch64)
-	docker push $(target)
+	docker push $(target):arm64
 else
 	@echo "Architecture $(arch) not supported"
 	@false
