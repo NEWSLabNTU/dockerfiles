@@ -1,6 +1,6 @@
 .PHONY: default build push
 
-arch := $(shell uname -p)
+arch := $(shell uname -m)
 
 default: build
 
