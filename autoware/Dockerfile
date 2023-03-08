@@ -1,9 +1,10 @@
-FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04 AS autoware
+FROM --platform=$BUILDPLATFORM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04 AS autoware
+ARG TARGETARCH
 
 # apt update
 ENV DEBIAN_FRONTEND=noninteractive
 RUN ln -fs /usr/share/zoneinfo/Asia/Taipei /etc/localtime
-COPY sources.list /etc/apt/sources.list
+COPY sources.list.$TARGETARCH /etc/apt/sources.list
 RUN apt update -y
 RUN apt upgrade -y
 RUN apt install -y git dialog sudo tzdata keyboard-configuration
@@ -18,11 +19,12 @@ RUN apt install -y ros-galactic-desktop
 RUN apt install -y ros-dev-tools
 
 # Use Cyclone DDS RMW implementation
-RUN wget -O /root/setup.env https://raw.githubusercontent.com/autowarefoundation/autoware/galactic/amd64.env
+RUN wget -O /root/setup.env https://raw.githubusercontent.com/autowarefoundation/autoware/galactic/amd64.env  # Fix to "amd64.env" because "arm64.env" is empty.
 RUN . /root/setup.env && \
     rmw_implementation_dashed=$(echo "${rmw_implementation}" | tr '_' '-') && \
     apt install ros-${rosdistro}-${rmw_implementation_dashed} && \
-    echo '' >> /etc/bash.bashrc && echo "export RMW_IMPLEMENTATION=${rmw_implementation}" >> /etc/bash.bashrc
+    echo '' >> /etc/bash.bashrc && \
+    echo "export RMW_IMPLEMENTATION=${rmw_implementation}" >> /etc/bash.bashrc
 
 # Install pacmod
 RUN apt install -y apt-transport-https
