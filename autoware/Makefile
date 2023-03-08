@@ -7,9 +7,9 @@ default: build
 
 build:
 ifeq ($(arch), x86_64)
-	docker buildx build --platform linux/amd64 -t $(target):ubuntu-20.04-amd64 .
+	docker buildx build --platform linux/amd64 -t $(target):galactic-amd64 .
 else ifeq ($(arch), aarch64)
-	docker build --platform linux/arm64/v8 -t $(target):ubuntu-20.04-arm64 .
+	docker build --platform linux/arm64/v8 -t $(target):galactic-arm64 .
 else
 	@echo "Architecture $(arch) not supported"
 	@false
@@ -17,14 +17,14 @@ endif
 
 push-image:
 ifeq ($(arch), x86_64)
-	docker push $(target):ubuntu-20.04-amd64
+	docker push $(target):galactic-amd64
 else ifeq ($(arch), aarch64)
-	docker push $(target):ubuntu-20.04-arm64
+	docker push $(target):galactic-arm64
 else
 	@echo "Architecture $(arch) not supported"
 	@false
 endif
 
 push-manifest:
-	docker manifest create $(target):latest $(target):ubuntu-20.04-amd64 $(target):ubuntu-20.04-arm64
-	docker manifest push $(target):latest
+	docker manifest create $(target):galactic $(target):galactic-amd64 $(target):galactic-arm64
+	docker manifest push $(target):galactic
