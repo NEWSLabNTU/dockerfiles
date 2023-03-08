@@ -5,7 +5,7 @@ arch := $(shell uname -m)
 
 default: build
 
-build:
+build: CARLA_0.9.14.tar.gz AdditionalMaps_0.9.14.tar.gz GeographicLib.tar.xz
 ifeq ($(arch), x86_64)
 	docker buildx build \
 		--platform linux/amd64 \
@@ -47,11 +47,15 @@ endif
 
 push-manifest:
 	docker manifest create $(target):galactic \
-		$(target):galactic-amd64 \
-		$(target):galactic-arm64
+		$(target):galactic-amd64
 	docker manifest push $(target):galactic
 
 	docker manifest create $(target):galactic-prebuild \
-		$(target):galactic-prebuild-amd64 \
-		$(target):galactic-prebuild-arm64
+		$(target):galactic-prebuild-amd64
 	docker manifest push $(target):galactic-prebuild
+
+CARLA_0.9.14.tar.gz:
+	curl --parallel https://carla-releases.s3.eu-west-3.amazonaws.com/Linux/CARLA_0.9.14.tar.gz
+
+AdditionalMaps_0.9.14.tar.gz:
+	curl --parallel https://carla-releases.s3.eu-west-3.amazonaws.com/Linux/CARLA_0.9.14.tar.gz
