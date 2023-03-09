@@ -1,6 +1,6 @@
 .PHONY: default build push-image push-manifest
 
-target := jerry73204/zenoh-dds
+target := jerry73204/zenoh-bridge-dds
 arch := $(shell uname -m)
 
 default: build
