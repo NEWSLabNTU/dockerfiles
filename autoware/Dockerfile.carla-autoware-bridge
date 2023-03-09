@@ -1,10 +1,12 @@
 FROM --platform=$BUILDPLATFORM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04 AS base-env
 ARG TARGETARCH
 
+SHELL ["/usr/bin/bash", "-c"]
+
 # apt update
 ENV DEBIAN_FRONTEND=noninteractive
 RUN ln -fs /usr/share/zoneinfo/Asia/Taipei /etc/localtime
-COPY sources.list.$TARGETARCH /etc/apt/sources.list
+COPY data/sources.list.$TARGETARCH /etc/apt/sources.list
 RUN apt update -y
 RUN apt upgrade -y
 RUN apt install -y git dialog sudo tzdata keyboard-configuration
@@ -28,8 +30,8 @@ RUN wget -O /root/setup.env https://raw.githubusercontent.com/autowarefoundation
 RUN . /root/setup.env && \
     rmw_implementation_dashed=$(echo "${rmw_implementation}" | tr '_' '-') && \
     apt install ros-${rosdistro}-${rmw_implementation_dashed} && \
-    echo '' >> /etc/bash.bashrc && \
-    echo "export RMW_IMPLEMENTATION=${rmw_implementation}" >> /etc/bash.bashrc
+    echo '' >> /root/.bashrc && \
+    echo "export RMW_IMPLEMENTATION=${rmw_implementation}" >> /root/.bashrc
 
 # Install pacmod
 RUN apt install -y apt-transport-https
@@ -46,8 +48,8 @@ RUN pip3 install --no-input gdown
 RUN apt install -y geographiclib-tools
 # RUN geographiclib-get-geoids egm2008-1
 WORKDIR /root
-COPY GeographicLib.tar.xz.0 GeographicLib.tar.xz.0
-COPY GeographicLib.tar.xz.1 GeographicLib.tar.xz.1
+COPY data/GeographicLib.tar.xz.0 GeographicLib.tar.xz.0
+COPY data/GeographicLib.tar.xz.1 GeographicLib.tar.xz.1
 RUN cat GeographicLib.tar.xz.0 GeographicLib.tar.xz.1 > GeographicLib.tar.xz
 WORKDIR /usr/share
 RUN tar -xf /root/GeographicLib.tar.xz
@@ -68,21 +70,13 @@ RUN . /opt/ros/galactic/setup.sh && \
     rosdep --rosdistro=$ROS_DISTRO update
 
 # Source ROS env in .bashrc
-RUN echo '' >> /etc/bash.bashrc && \
-    echo 'source /opt/ros/galactic/setup.bash' >> /etc/bash.bashrc
+RUN echo '' >> /root/.bashrc && \
+    echo 'source /opt/ros/galactic/setup.bash' >> /root/.bashrc
 
-FROM base-env AS carla-preinstall
+FROM base-env AS rust-env
 
-RUN mkdir /root/carla
-WORKDIR /root/carla
-
-COPY CARLA_0.9.14.tar.gz /root/carla
-COPY AdditionalMaps_0.9.14.tar.gz /root/carla
-RUN tar -xf CARLA_0.9.14.tar.gz
-RUN tar -xf AdditionalMaps_0.9.14.tar.gz
-RUN rm CARLA_0.9.14.tar.gz AdditionalMaps_0.9.14.tar.gz
-
-FROM rust:1.67.1 AS rust-env
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
+    bash -s -- --default-toolchain stable -y
 
 FROM autoware-env AS autoware-prebuild
 
@@ -99,18 +93,28 @@ RUN . /opt/ros/galactic/setup.sh && \
 RUN . /opt/ros/galactic/setup.sh && \
     colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 
-RUN echo '' >> /etc/bash.bashrc && \
-    echo 'source /root/autoware/install/setup.bash' >> /etc/bash.bashrc
+RUN echo '' >> /root/.bashrc && \
+    echo 'source /root/autoware/install/setup.bash' >> /root/.bashrc
 
-FROM autoware-prebuild AS carla-autoware
+FROM autoware-prebuild AS carla-autoware-bridge
 
 WORKDIR /root
-COPY --from=rust-env /usr/local/cargo /usr/local/cargo
-COPY --from=carla-preinstall /root/carla /root/carla
+RUN apt install -y clang
+RUN apt install -y ros-galactic-moveit-msgs
 
-# Install dev tools
-RUN apt install -y nano
-RUN apt install -y vim
-RUN apt install -y screen
-RUN apt install -y tmux
-RUN apt install -y emacs-nox
+COPY --from=rust-env /root/.rustup /root/.rustup
+COPY --from=rust-env /root/.cargo /root/.cargo
+RUN echo 'source $HOME/.cargo/env' >> /root/.bashrc
+
+RUN git clone https://github.com/evshary/carla_autoware_zenoh_bridge.git
+RUN source /root/.cargo/env && \
+    source /root/autoware/install/setup.bash && \
+    cd carla_autoware_zenoh_bridge && \
+    cargo build --release
+
+# # Install dev tools
+# RUN apt install -y nano
+# RUN apt install -y vim
+# RUN apt install -y screen
+# RUN apt install -y tmux
+# RUN apt install -y emacs-nox
