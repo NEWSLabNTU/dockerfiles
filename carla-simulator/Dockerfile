@@ -23,10 +23,3 @@ COPY data/AdditionalMaps_0.9.14.tar.gz /root/carla
 RUN tar -xf CARLA_0.9.14.tar.gz
 RUN tar -xf AdditionalMaps_0.9.14.tar.gz
 RUN rm CARLA_0.9.14.tar.gz AdditionalMaps_0.9.14.tar.gz
-
-# Install dev tools
-RUN apt install -y nano
-RUN apt install -y vim
-RUN apt install -y screen
-RUN apt install -y tmux
-RUN apt install -y emacs-nox

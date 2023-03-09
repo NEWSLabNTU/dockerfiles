@@ -1,7 +1,6 @@
 .PHONY: default \
 	build \
-	push-image \
-	push-manifest
+	push
 
 target := jerry73204/carla-simulator
 arch := $(shell uname -m)
@@ -15,7 +14,7 @@ build: data/CARLA_0.9.14.tar.gz data/AdditionalMaps_0.9.14.tar.gz
 		-t $(target):latest \
 		.
 
-push-image:
+push:
 	docker push $(target):latest
 
 data/CARLA_0.9.14.tar.gz:
