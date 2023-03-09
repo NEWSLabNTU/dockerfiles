@@ -3,7 +3,7 @@
 	push-image \
 	push-manifest
 
-target := jerry73204/autoware
+target := jerry73204/carla-autoware-bridge
 arch := $(shell uname -m)
 
 default: build
@@ -12,13 +12,13 @@ build: data/GeographicLib.tar.xz.0 data/GeographicLib.tar.xz.1
 ifeq ($(arch), x86_64)
 	docker buildx build \
 		--platform linux/amd64 \
-		--target autoware-prebuild \
+		--target carla-autoware-bridge \
 		-t $(target):amd64 \
 		.
 else ifeq ($(arch), aarch64)
 	docker buildx build \
 		--platform linux/arm64/v8 \
-		--target autoware-prebuild \
+		--target carla-autoware-bridge \
 		-t $(target):arm64 \
 		.
 else
