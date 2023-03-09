@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM jerry73204/autoware:$TARGETARCH AS carla-autoware-bridge
+FROM --platform=$BUILDPLATFORM jerry73204/autoware:$TARGETARCH AS carla-autoware-bridge-prebuild
 ARG TARGETARCH
 
 SHELL ["/usr/bin/bash", "-c"]
@@ -21,6 +21,25 @@ RUN source /root/.cargo/env && \
     cd carla_autoware_zenoh_bridge && \
     cargo build --release
 
-WORKDIR /
+# Install poetry
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
+# Build Carla agent example
+WORKDIR /root
+RUN git clone \
+    https://github.com/RogerJung/carla_autoware_zenoh_bridge.git \
+    agent
+WORKDIR /root/agent/carla_agent
+RUN git checkout c30bea0503a0f9c91a1b349db426d0e678e61232
+RUN /root/.local/bin/poetry install
+
 COPY data/entrypoint.sh /entrypoint.sh
+COPY data/run_agent.sh /run_agent.sh
+
+FROM carla-autoware-bridge-prebuild AS carla-autoware-bridge
+WORKDIR /
 ENTRYPOINT ["./entrypoint.sh"]
+
+FROM carla-autoware-bridge-prebuild AS carla-agent
+WORKDIR /root/agent/carla_agent
+ENTRYPOINT ["/run_agent.sh"]
