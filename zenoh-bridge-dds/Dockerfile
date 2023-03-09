@@ -48,4 +48,6 @@ WORKDIR /root/zenoh-dds
 RUN source /root/.cargo/env && \
     cargo build --release -p zenoh-bridge-dds
 
-ENTRYPOINT /root/zenoh-dds/target/release/zenoh-bridge-dds
+# entry point
+WORKDIR /
+ENTRYPOINT ["/root/zenoh-dds/target/release/zenoh-bridge-dds"]
