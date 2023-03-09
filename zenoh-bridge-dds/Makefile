@@ -30,5 +30,5 @@ push-image:
 endif
 
 push-manifest:
-	docker manifest create $(target):latest $(target):amd64 $(target):arm64
+	docker manifest create $(target):latest $(target):amd64
 	docker manifest push $(target):latest
