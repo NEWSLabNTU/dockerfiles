@@ -21,9 +21,5 @@ RUN source /root/.cargo/env && \
     cd carla_autoware_zenoh_bridge && \
     cargo build --release
 
-# # Install dev tools
-# RUN apt install -y nano
-# RUN apt install -y vim
-# RUN apt install -y screen
-# RUN apt install -y tmux
-# RUN apt install -y emacs-nox
+ENTRYPOINT source /root/autoware/install/setup.bash && \
+    env RUST_LOG=c=info /root/carla_autoware_zenoh_bridge/target/release/carla_autoware_zenoh_bridge
