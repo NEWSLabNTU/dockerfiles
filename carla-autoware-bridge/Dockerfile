@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM jerry73204/autoware AS carla-autoware-bridge
+FROM --platform=$BUILDPLATFORM jerry73204/autoware:$TARGETARCH AS carla-autoware-bridge
 ARG TARGETARCH
 
 SHELL ["/usr/bin/bash", "-c"]
@@ -14,6 +14,7 @@ COPY --from=rust-env /root/.cargo /root/.cargo
 RUN echo 'source $HOME/.cargo/env' >> /root/.bashrc
 
 # Build bridge
+WORKDIR /root
 RUN git clone https://github.com/evshary/carla_autoware_zenoh_bridge.git
 RUN source /root/.cargo/env && \
     source /root/autoware/install/setup.bash && \
