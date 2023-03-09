@@ -8,7 +8,7 @@ arch := $(shell uname -m)
 
 default: build
 
-build: data/GeographicLib.tar.xz.0 data/GeographicLib.tar.xz.1
+build:
 ifeq ($(arch), x86_64)
 	docker buildx build \
 		--platform linux/amd64 \
