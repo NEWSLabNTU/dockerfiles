@@ -21,5 +21,6 @@ RUN source /root/.cargo/env && \
     cd carla_autoware_zenoh_bridge && \
     cargo build --release
 
-ENTRYPOINT source /root/autoware/install/setup.bash && \
-    env RUST_LOG=c=info /root/carla_autoware_zenoh_bridge/target/release/carla_autoware_zenoh_bridge
+WORKDIR /
+COPY data/entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
