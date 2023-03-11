@@ -77,13 +77,33 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
     bash -s -- --default-toolchain stable -y
 RUN echo 'source $HOME/.cargo/env' >> /root/.bashrc
 
+
+# Install Kafka
+RUN apt install -y default-jdk
+
+USER root
+COPY --chown=nobody:nobody kafka /setup/kafka
+WORKDIR /setup/kafka
+
+USER nobody
+RUN ./prepare.sh
+
+USER root
+RUN ./install.sh
+
+
+# Install rdkafka
+RUN apt install -y librdkafka-dev
+
+
 # Dev tools
-# RUN apt install -y man-pages
 RUN apt install -y nano
 RUN apt install -y vim
 RUN apt install -y screen
 RUN apt install -y tmux
 RUN apt install -y emacs-nox
 
+
 # Clean up
 RUN rm -r /setup
+WORKDIR /root
