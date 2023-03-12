@@ -5,6 +5,7 @@
 
 bridge_target := jerry73204/carla-autoware-bridge
 agent_target := jerry73204/carla-agent
+git_ref = 3b8601d6f985ca68a7be4a41822f9e684ad3bf43
 arch := $(shell uname -m)
 
 default: build
@@ -14,22 +15,26 @@ ifeq ($(arch), x86_64)
 	docker buildx build \
 		--platform linux/amd64 \
 		--target carla-autoware-bridge \
+		--build-arg GIT_REF=$(git_ref) \
 		-t $(bridge_target):amd64 \
 		.
 	docker buildx build \
 		--platform linux/amd64 \
 		--target carla-agent \
+		--build-arg GIT_REF=$(git_ref) \
 		-t $(agent_target):amd64 \
 		.
 else ifeq ($(arch), aarch64)
 	docker buildx build \
 		--platform linux/arm64/v8 \
 		--target carla-autoware-bridge \
+		--build-arg GIT_REF=$(git_ref) \
 		-t $(bridge_target):arm64 \
 		.
 	docker buildx build \
 		--platform linux/arm64/v8 \
 		--target carla-agent \
+		--build-arg GIT_REF=$(git_ref) \
 		-t $(agent_target):arm64 \
 		.
 else
