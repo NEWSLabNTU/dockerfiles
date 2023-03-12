@@ -13,4 +13,4 @@ RUN source /root/autoware/install/setup.bash && \
 # entry point
 WORKDIR /
 COPY data/entrypoint.sh /entrypoint.sh
-CMD ["./entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]

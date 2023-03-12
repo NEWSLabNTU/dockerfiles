@@ -31,4 +31,4 @@ RUN source /root/.cargo/env && \
     cargo build --all-targets --release
 
 WORKDIR /
-CMD ["/root/zenoh/target/release/zenohd"]
+ENTRYPOINT ["/root/zenoh/target/release/zenohd"]
