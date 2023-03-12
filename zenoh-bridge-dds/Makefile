@@ -1,4 +1,8 @@
-.PHONY: default build push-image push-manifest
+.PHONY: default \
+	build \
+	push-image \
+	push-manifest \
+	remove-manifest
 
 target := jerry73204/zenoh-bridge-dds
 arch := $(shell uname -m)
@@ -32,3 +36,6 @@ endif
 push-manifest:
 	docker manifest create $(target):latest $(target):amd64
 	docker manifest push $(target):latest
+
+remove-manifest:
+	docker manifest rm $(target):latest
