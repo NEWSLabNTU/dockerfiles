@@ -50,4 +50,4 @@ RUN source /root/.cargo/env && \
 
 # entry point
 WORKDIR /
-ENTRYPOINT ["/root/zenoh-dds/target/release/zenoh-bridge-dds"]
+CMD ["/root/zenoh-dds/target/release/zenoh-bridge-dds"]
