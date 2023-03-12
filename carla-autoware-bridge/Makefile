@@ -1,7 +1,8 @@
 .PHONY: default \
 	build \
 	push-image \
-	push-manifest
+	push-manifest \
+	remove-manifest
 
 bridge_target := jerry73204/carla-autoware-bridge
 agent_target := jerry73204/carla-agent
@@ -62,3 +63,7 @@ push-manifest:
 	docker manifest create $(agent_target):latest \
 		$(agent_target):amd64
 	docker manifest push $(agent_target):latest
+
+remove-manifest:
+	docker manifest rm $(bridge_target):latest
+	docker manifest rm $(agent_target):latest

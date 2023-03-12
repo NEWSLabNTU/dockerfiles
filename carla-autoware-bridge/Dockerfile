@@ -42,13 +42,13 @@ WORKDIR /root/agent/carla_agent
 RUN git checkout c30bea0503a0f9c91a1b349db426d0e678e61232
 RUN /root/.local/bin/poetry install
 
-COPY data/entrypoint.sh /entrypoint.sh
+COPY data/run_bridge.sh /run_bridge.sh
 COPY data/run_agent.sh /run_agent.sh
 
 FROM carla-autoware-bridge-prebuild AS carla-autoware-bridge
 WORKDIR /
-CMD ["./entrypoint.sh"]
+ENTRYPOINT ["./run_bridge.sh"]
 
 FROM carla-autoware-bridge-prebuild AS carla-agent
 WORKDIR /root/agent/carla_agent
-CMD ["/run_agent.sh"]
+ENTRYPOINT ["/run_agent.sh"]
