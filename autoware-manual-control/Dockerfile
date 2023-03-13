@@ -9,6 +9,7 @@ RUN git clone https://github.com/evshary/autoware_manual_control.git
 WORKDIR /root/autoware_manual_control_ws
 RUN source /root/autoware/install/setup.bash && \
     colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+COPY data/relay.launch.xml /root/autoware_manual_control_ws/relay.launch.xml
 
 # entry point
 WORKDIR /

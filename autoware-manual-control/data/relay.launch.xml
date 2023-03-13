@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <node pkg="topic_tools" exec="relay" name="relay" args="external/selected/control_cmd control/command/control_cmd" output="screen"/>
+    <node pkg="topic_tools" exec="relay" name="relay" args="external/selected/gear_cmd control/command/gear_cmd" output="screen"/>
+</launch>

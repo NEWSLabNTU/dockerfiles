@@ -1,7 +1,8 @@
 .PHONY: default \
 	build \
 	push-image \
-	push-manifest
+	push-manifest \
+	remove-manifest
 
 target := jerry73204/autoware_manual_control
 arch := $(shell uname -m)
@@ -40,3 +41,6 @@ push-manifest:
 	docker manifest create $(target):latest \
 		$(target):amd64
 	docker manifest push $(target):latest
+
+remove-manifest:
+	docker manifest rm $(target):latest
