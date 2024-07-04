@@ -20,6 +20,12 @@ else ifeq ($(arch), aarch64)
 		--target autoware-prebuild \
 		-t $(target):arm64 \
 		.
+else ifeq ($(arch), arm64)
+	docker buildx build \
+		--platform linux/arm64/v8 \
+		--target autoware-prebuild \
+		-t $(target):arm64 \
+		.
 else
 	@echo "Architecture $(arch) not supported"
 	@false
@@ -30,6 +36,8 @@ ifeq ($(arch), x86_64)
 	docker push $(target):amd64
 else ifeq ($(arch), aarch64)
 	docker push $(target):arm64
+else ifeq ($(arch), arm64)
+    docker push $(target):arm64
 else
 	@echo "Architecture $(arch) not supported"
 	@false

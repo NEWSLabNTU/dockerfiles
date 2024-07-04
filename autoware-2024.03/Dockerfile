@@ -90,8 +90,10 @@ RUN mkdir src
 RUN vcs import src < autoware.repos
 RUN . /opt/ros/humble/setup.sh && \
     rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
+# ignore nebula package
+RUN touch ~/autoware/src/sensor_component/external/nebula/COLCON_IGNORE
 RUN . /opt/ros/humble/setup.sh && \
-    MAKEFLAGS="-j1" colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release --parallel-workers 16
+    MAKEFLAGS="-j2" colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release --parallel-workers 4
 RUN echo '' >> /root/.bashrc && \
     echo 'source /root/autoware/install/setup.bash' >> /root/.bashrc
 
